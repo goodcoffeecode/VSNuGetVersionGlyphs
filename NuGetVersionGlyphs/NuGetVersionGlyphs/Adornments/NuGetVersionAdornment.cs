@@ -46,7 +46,10 @@ namespace NuGetVersionGlyphs.Adornments
         {
             _view.LayoutChanged -= OnLayoutChanged;
             _view.Closed -= OnViewClosed;
-            _nugetService?.Dispose();
+            if (_nugetService != null)
+            {
+                _nugetService.Dispose();
+            }
         }
 
         private void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)

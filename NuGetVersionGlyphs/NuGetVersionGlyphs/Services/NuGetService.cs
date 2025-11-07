@@ -30,7 +30,7 @@ namespace NuGetVersionGlyphs.Services
             {
                 var resource = await _repository.GetResourceAsync<FindPackageByIdResource>(cancellationToken);
                 var versions = await resource.GetAllVersionsAsync(packageId, _cache, _logger, cancellationToken);
-                return versions?.OrderByDescending(v => v) ?? Enumerable.Empty<NuGetVersion>();
+                return versions != null ? versions.OrderByDescending(v => v) : Enumerable.Empty<NuGetVersion>();
             }
             catch (FatalProtocolException)
             {
@@ -87,7 +87,10 @@ namespace NuGetVersionGlyphs.Services
             {
                 if (disposing)
                 {
-                    _cache?.Dispose();
+                    if (_cache != null)
+                    {
+                        _cache.Dispose();
+                    }
                 }
                 _disposed = true;
             }

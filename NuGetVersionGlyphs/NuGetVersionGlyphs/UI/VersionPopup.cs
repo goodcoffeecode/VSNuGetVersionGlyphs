@@ -58,8 +58,14 @@ namespace NuGetVersionGlyphs.UI
 
                 item.MouseLeftButtonUp += (s, e) =>
                 {
-                    VersionSelected?.Invoke(version.ToString());
-                    _popup?.IsOpen = false;
+                    if (VersionSelected != null)
+                    {
+                        VersionSelected.Invoke(version.ToString());
+                    }
+                    if (_popup != null)
+                    {
+                        _popup.IsOpen = false;
+                    }
                 };
 
                 listBox.Items.Add(item);
@@ -70,13 +76,18 @@ namespace NuGetVersionGlyphs.UI
                 Text = $"Versions for {_package.PackageId}",
                 FontWeight = FontWeights.Bold,
                 Padding = new Thickness(ItemPadding),
-                Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
+                Background = new SolidColorBrush(Color.FromRgb(240, 240, 240))
+            };
+
+            var headerBorder = new Border
+            {
                 BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(0, 0, 0, 1)
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Child = header
             };
 
             var stackPanel = new StackPanel();
-            stackPanel.Children.Add(header);
+            stackPanel.Children.Add(headerBorder);
             stackPanel.Children.Add(listBox);
 
             var border = new Border
