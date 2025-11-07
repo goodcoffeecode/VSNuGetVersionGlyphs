@@ -31,8 +31,14 @@ namespace NuGetVersionGlyphs.Services
                 var versions = await resource.GetAllVersionsAsync(packageId, _cache, _logger, cancellationToken);
                 return versions?.OrderByDescending(v => v) ?? Enumerable.Empty<NuGetVersion>();
             }
-            catch (Exception)
+            catch (FatalProtocolException)
             {
+                // Package not found or network error
+                return Enumerable.Empty<NuGetVersion>();
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled
                 return Enumerable.Empty<NuGetVersion>();
             }
         }

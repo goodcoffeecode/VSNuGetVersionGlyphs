@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using NuGetVersionGlyphs.Models;
 
 namespace NuGetVersionGlyphs.Parsers
 {
     public class CsprojParser
     {
-        private static readonly Regex PackageReferenceRegex = new Regex(
-            @"<PackageReference\s+Include\s*=\s*""(?<packageId>[^""]+)""\s+Version\s*=\s*""(?<version>[^""]+)""\s*/>",
+        private static readonly Regex PackageReferenceLineRegex = new Regex(
+            @"<PackageReference[^>]*Include\s*=\s*""(?<packageId>[^""]+)""[^>]*Version\s*=\s*""(?<version>[^""]+)""",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static List<PackageReferenceInfo> ParsePackageReferences(string text)
@@ -18,7 +19,7 @@ namespace NuGetVersionGlyphs.Parsers
             for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
-                var match = PackageReferenceRegex.Match(line);
+                var match = PackageReferenceLineRegex.Match(line);
 
                 if (match.Success)
                 {

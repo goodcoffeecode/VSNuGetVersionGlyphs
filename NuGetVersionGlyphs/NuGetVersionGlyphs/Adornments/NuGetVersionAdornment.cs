@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,7 +36,7 @@ namespace NuGetVersionGlyphs.Adornments
             _view.LayoutChanged += OnLayoutChanged;
             _view.Closed += OnViewClosed;
 
-            CreateAdornments();
+            _ = InitializeAdornmentsAsync();
         }
 
         private void OnViewClosed(object sender, EventArgs e)
@@ -52,9 +53,9 @@ namespace NuGetVersionGlyphs.Adornments
             }
         }
 
-        private async void CreateAdornments()
+        private async Task InitializeAdornmentsAsync()
         {
-            await Task.Run(async () =>
+            try
             {
                 var snapshot = _view.TextSnapshot;
                 var text = snapshot.GetText();
@@ -78,7 +79,11 @@ namespace NuGetVersionGlyphs.Adornments
                         CreateVisualForLine(line);
                     }
                 });
-            });
+            }
+            catch (Exception)
+            {
+                // Silently fail if adornment initialization fails
+            }
         }
 
         private void CreateVisualForLine(ITextViewLine line)
@@ -95,7 +100,7 @@ namespace NuGetVersionGlyphs.Adornments
             if (glyph == null)
                 return;
 
-            glyph.MouseLeftButtonDown += (s, e) => OnGlyphClick(package);
+            glyph.MouseLeftButtonDown += (s, e) => _ = OnGlyphClickAsync(package);
 
             Canvas.SetLeft(glyph, line.Right + 5);
             Canvas.SetTop(glyph, line.Top);
@@ -157,17 +162,27 @@ namespace NuGetVersionGlyphs.Adornments
             return canvas;
         }
 
-        private async void OnGlyphClick(PackageReferenceInfo package)
+        private async Task OnGlyphClickAsync(PackageReferenceInfo package)
         {
-            var versions = await _nugetService.GetVersionsAroundAsync(package.PackageId, package.CurrentVersion);
-            
-            var popup = new VersionPopup(package, versions, _view);
-            popup.VersionSelected += (selectedVersion) =>
+            try
             {
-                UpdatePackageVersion(package, selectedVersion);
-            };
-            
-            popup.Show();
+                var versions = await _nugetService.GetVersionsAroundAsync(package.PackageId, package.CurrentVersion);
+                
+                await _view.VisualElement.Dispatcher.InvokeAsync(() =>
+                {
+                    var popup = new VersionPopup(package, versions, _view);
+                    popup.VersionSelected += (selectedVersion) =>
+                    {
+                        UpdatePackageVersion(package, selectedVersion);
+                    };
+                    
+                    popup.Show();
+                });
+            }
+            catch (Exception)
+            {
+                // Silently fail if version retrieval fails
+            }
         }
 
         private void UpdatePackageVersion(PackageReferenceInfo package, string newVersion)
@@ -176,9 +191,9 @@ namespace NuGetVersionGlyphs.Adornments
             var line = snapshot.GetLineFromLineNumber(package.LineNumber);
             var lineText = line.GetText();
 
-            var oldVersionPattern = $"Version=\"{package.CurrentVersion}\"";
-            var newVersionText = $"Version=\"{newVersion}\"";
-            var updatedLine = lineText.Replace(oldVersionPattern, newVersionText);
+            // Use regex for more precise replacement
+            var versionRegex = new Regex(@"Version\s*=\s*""[^""]+""", RegexOptions.IgnoreCase);
+            var updatedLine = versionRegex.Replace(lineText, $"Version=\"{newVersion}\"", 1);
 
             var edit = snapshot.TextBuffer.CreateEdit();
             edit.Replace(line.Extent, updatedLine);
