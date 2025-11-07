@@ -19,6 +19,9 @@ namespace NuGetVersionGlyphs.Adornments
 {
     internal sealed class NuGetVersionAdornment
     {
+        private const double GlyphLeftOffset = 5;
+        private const int GlyphSize = 16;
+        
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private readonly NuGetService _nugetService;
@@ -43,6 +46,7 @@ namespace NuGetVersionGlyphs.Adornments
         {
             _view.LayoutChanged -= OnLayoutChanged;
             _view.Closed -= OnViewClosed;
+            _nugetService?.Dispose();
         }
 
         private void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -102,7 +106,7 @@ namespace NuGetVersionGlyphs.Adornments
 
             glyph.MouseLeftButtonDown += (s, e) => _ = OnGlyphClickAsync(package);
 
-            Canvas.SetLeft(glyph, line.Right + 5);
+            Canvas.SetLeft(glyph, line.Right + GlyphLeftOffset);
             Canvas.SetTop(glyph, line.Top);
 
             _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, line.Extent, null, glyph, null);
@@ -113,8 +117,8 @@ namespace NuGetVersionGlyphs.Adornments
         {
             var canvas = new Canvas
             {
-                Width = 16,
-                Height = 16
+                Width = GlyphSize,
+                Height = GlyphSize
             };
 
             if (package.IsUpToDate)
@@ -134,8 +138,8 @@ namespace NuGetVersionGlyphs.Adornments
                 // Blue "new" badge for packages with updates
                 var ellipse = new Ellipse
                 {
-                    Width = 16,
-                    Height = 16,
+                    Width = GlyphSize,
+                    Height = GlyphSize,
                     Fill = Brushes.DodgerBlue
                 };
                 canvas.Children.Add(ellipse);

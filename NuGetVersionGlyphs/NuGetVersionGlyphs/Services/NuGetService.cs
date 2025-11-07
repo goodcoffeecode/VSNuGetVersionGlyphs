@@ -10,11 +10,12 @@ using NuGet.Versioning;
 
 namespace NuGetVersionGlyphs.Services
 {
-    public class NuGetService
+    public class NuGetService : IDisposable
     {
         private readonly SourceCacheContext _cache;
         private readonly SourceRepository _repository;
         private readonly ILogger _logger;
+        private bool _disposed;
 
         public NuGetService()
         {
@@ -72,6 +73,24 @@ namespace NuGetVersionGlyphs.Services
             var count = endIndex - startIndex + 1;
 
             return allVersions.GetRange(startIndex, count);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _cache?.Dispose();
+                }
+                _disposed = true;
+            }
         }
     }
 }

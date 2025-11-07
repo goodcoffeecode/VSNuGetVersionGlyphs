@@ -11,6 +11,10 @@ namespace NuGetVersionGlyphs.UI
 {
     internal class VersionPopup
     {
+        private const int PopupWidth = 250;
+        private const int PopupMaxHeight = 300;
+        private const int ItemPadding = 5;
+        
         private readonly PackageReferenceInfo _package;
         private readonly List<NuGetVersion> _versions;
         private readonly IWpfTextView _view;
@@ -29,8 +33,8 @@ namespace NuGetVersionGlyphs.UI
         {
             var listBox = new ListBox
             {
-                Width = 250,
-                MaxHeight = 300,
+                Width = PopupWidth,
+                MaxHeight = PopupMaxHeight,
                 Background = Brushes.White,
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(1)
@@ -41,7 +45,7 @@ namespace NuGetVersionGlyphs.UI
                 var item = new ListBoxItem
                 {
                     Content = version.ToString(),
-                    Padding = new Thickness(5),
+                    Padding = new Thickness(ItemPadding),
                     Cursor = System.Windows.Input.Cursors.Hand
                 };
 
@@ -65,7 +69,7 @@ namespace NuGetVersionGlyphs.UI
             {
                 Text = $"Versions for {_package.PackageId}",
                 FontWeight = FontWeights.Bold,
-                Padding = new Thickness(5),
+                Padding = new Thickness(ItemPadding),
                 Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(0, 0, 0, 1)
