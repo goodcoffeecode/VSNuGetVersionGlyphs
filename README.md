@@ -1,11 +1,11 @@
-# VSNuGetVersionGlyphs
+# VS NuGet Version Glyphs
 
 A Visual Studio extension (VSIX) that displays inline glyphs in .csproj files showing the version status of NuGet packages with interactive version switching.
 
 ## Features
 
 - **Visual Indicators**: Displays glyphs at the end of each `<PackageReference>` line in .csproj files
-  - 🟢 **Green checkmark**: Package is up-to-date with the latest version
+  - ✅ **Green checkmark**: Package is up-to-date with the latest version
   - 🔵 **Blue "N" badge**: A newer version of the package is available
   
 - **Interactive Version Popup**: Click on any glyph to see a popup showing:
@@ -40,7 +40,7 @@ A Visual Studio extension (VSIX) that displays inline glyphs in .csproj files sh
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" /> 🔵
-    <PackageReference Include="AutoMapper" Version="13.0.1" /> 🟢
+    <PackageReference Include="AutoMapper" Version="13.0.1" /> ✅
   </ItemGroup>
 </Project>
 ```
