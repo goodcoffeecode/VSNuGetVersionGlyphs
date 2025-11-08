@@ -127,13 +127,14 @@ namespace NuGetVersionGlyphs.Adornments
             if (package.IsUpToDate)
             {
                 // Green checkmark for up-to-date packages
-                var ellipse = new Ellipse
+                var checkPath = new Path
                 {
-                    Width = GlyphSize,
-                    Height = GlyphSize,
-                    Fill = Brushes.Green
+                    Data = Geometry.Parse("M 2,8 L 6,12 L 14,2"),
+                    Stroke = Brushes.Green,
+                    StrokeThickness = 2,
+                    StrokeLineJoin = PenLineJoin.Round
                 };
-                canvas.Children.Add(ellipse);
+                canvas.Children.Add(checkPath);
             }
             else
             {
@@ -191,7 +192,7 @@ namespace NuGetVersionGlyphs.Adornments
             }
         }
 
-        private void UpdatePackageVersion(PackageReferenceInfo package, string newVersion)
+        private async void UpdatePackageVersion(PackageReferenceInfo package, string newVersion)
         {
             var snapshot = _view.TextSnapshot;
             var line = snapshot.GetLineFromLineNumber(package.LineNumber);
@@ -204,6 +205,59 @@ namespace NuGetVersionGlyphs.Adornments
             var edit = snapshot.TextBuffer.CreateEdit();
             edit.Replace(line.Extent, updatedLine);
             edit.Apply();
+
+            // Update the package info and re-evaluate
+            package.CurrentVersion = newVersion;
+            
+            // Re-query to get the latest version and update the glyph
+            await RefreshPackageGlyphAsync(package);
+        }
+
+        private async Task RefreshPackageGlyphAsync(PackageReferenceInfo package)
+        {
+            try
+            {
+                var latestVersion = await _nugetService.GetLatestVersionAsync(package.PackageId);
+                if (latestVersion != null)
+                {
+                    package.LatestVersion = latestVersion.ToString();
+                    package.IsUpToDate = package.CurrentVersion == package.LatestVersion;
+                }
+
+                await _view.VisualElement.Dispatcher.InvokeAsync(() =>
+                {
+                    // Remove the old glyph
+                    if (_adornmentsByLine.TryGetValue(package.LineNumber, out var oldGlyph))
+                    {
+                        _layer.RemoveAdornment(oldGlyph);
+                        _adornmentsByLine.Remove(package.LineNumber);
+                    }
+
+                    // Get the current line and create a new glyph
+                    var snapshot = _view.TextSnapshot;
+                    var textLine = snapshot.GetLineFromLineNumber(package.LineNumber);
+                    var viewLine = _view.GetTextViewLineContainingBufferPosition(textLine.Start);
+
+                    if (viewLine != null)
+                    {
+                        var glyph = CreateGlyph(package);
+                        if (glyph != null)
+                        {
+                            glyph.MouseLeftButtonDown += (s, e) => _ = OnGlyphClickAsync(package);
+
+                            Canvas.SetLeft(glyph, viewLine.Right + GlyphLeftOffset);
+                            Canvas.SetTop(glyph, viewLine.Top);
+
+                            _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, viewLine.Extent, null, glyph, null);
+                            _adornmentsByLine[package.LineNumber] = glyph;
+                        }
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                // Silently fail if refresh fails
+            }
         }
     }
 }

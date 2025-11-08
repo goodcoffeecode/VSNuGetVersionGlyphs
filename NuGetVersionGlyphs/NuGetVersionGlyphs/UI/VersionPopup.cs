@@ -55,7 +55,10 @@ namespace NuGetVersionGlyphs.UI
 
                 item.MouseLeftButtonUp += (s, e) =>
                 {
-                    VersionSelected?.Invoke(version.ToString());
+                    if (VersionSelected != null)
+                    {
+                        VersionSelected.Invoke(version.ToString());
+                    }
                     if (_popup != null)
                     {
                         _popup.IsOpen = false;
