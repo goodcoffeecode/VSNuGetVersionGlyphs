@@ -127,14 +127,13 @@ namespace NuGetVersionGlyphs.Adornments
             if (package.IsUpToDate)
             {
                 // Green checkmark for up-to-date packages
-                var checkPath = new Path
+                var ellipse = new Ellipse
                 {
-                    Data = Geometry.Parse("M 2,8 L 6,12 L 14,2"),
-                    Stroke = Brushes.Green,
-                    StrokeThickness = 2,
-                    StrokeLineJoin = PenLineJoin.Round
+                    Width = GlyphSize,
+                    Height = GlyphSize,
+                    Fill = Brushes.Green
                 };
-                canvas.Children.Add(checkPath);
+                canvas.Children.Add(ellipse);
             }
             else
             {
@@ -177,7 +176,7 @@ namespace NuGetVersionGlyphs.Adornments
                 
                 await _view.VisualElement.Dispatcher.InvokeAsync(() =>
                 {
-                    var popup = new VersionPopup(package, versions, _view);
+                    var popup = new VersionPopup(package, versions);
                     popup.VersionSelected += (selectedVersion) =>
                     {
                         UpdatePackageVersion(package, selectedVersion);

@@ -50,7 +50,7 @@ namespace NuGetVersionGlyphs.Services
             return versions.FirstOrDefault();
         }
 
-        public async Task<List<NuGetVersion>> GetVersionsAroundAsync(string packageId, string currentVersion, int countAbove = 5, int countBelow = 5, CancellationToken cancellationToken = default)
+        public async Task<List<NuGetVersion>> GetVersionsAroundAsync(string packageId, string currentVersion, int countAbove = 100, int countBelow = 5, CancellationToken cancellationToken = default)
         {
             var allVersions = (await GetPackageVersionsAsync(packageId, cancellationToken)).ToList();
             

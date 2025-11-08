@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Microsoft.VisualStudio.Text.Editor;
 using NuGet.Versioning;
 using NuGetVersionGlyphs.Models;
 
@@ -17,16 +16,14 @@ namespace NuGetVersionGlyphs.UI
         
         private readonly PackageReferenceInfo _package;
         private readonly List<NuGetVersion> _versions;
-        private readonly IWpfTextView _view;
         private System.Windows.Controls.Primitives.Popup _popup;
 
         public event Action<string> VersionSelected;
 
-        public VersionPopup(PackageReferenceInfo package, List<NuGetVersion> versions, IWpfTextView view)
+        public VersionPopup(PackageReferenceInfo package, List<NuGetVersion> versions)
         {
             _package = package;
             _versions = versions;
-            _view = view;
         }
 
         public void Show()
@@ -58,10 +55,7 @@ namespace NuGetVersionGlyphs.UI
 
                 item.MouseLeftButtonUp += (s, e) =>
                 {
-                    if (VersionSelected != null)
-                    {
-                        VersionSelected.Invoke(version.ToString());
-                    }
+                    VersionSelected?.Invoke(version.ToString());
                     if (_popup != null)
                     {
                         _popup.IsOpen = false;
@@ -103,10 +97,9 @@ namespace NuGetVersionGlyphs.UI
                 Child = border,
                 StaysOpen = false,
                 AllowsTransparency = true,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse
+                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse,
+                IsOpen = true
             };
-
-            _popup.IsOpen = true;
         }
     }
 }
