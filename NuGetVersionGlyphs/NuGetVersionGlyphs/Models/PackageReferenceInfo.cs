@@ -9,5 +9,6 @@ namespace NuGetVersionGlyphs.Models
         public int StartPosition { get; set; }
         public int EndPosition { get; set; }
         public bool IsUpToDate { get; set; }
+        public bool IsCurrentVersionPrerelease { get; set; }
     }
 }

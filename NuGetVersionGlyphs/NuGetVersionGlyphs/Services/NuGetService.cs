@@ -50,6 +50,18 @@ namespace NuGetVersionGlyphs.Services
             return versions.FirstOrDefault();
         }
 
+        public async Task<NuGetVersion> GetLatestVersionAsync(string packageId, bool includePrerelease, CancellationToken cancellationToken = default)
+        {
+            var versions = await GetPackageVersionsAsync(packageId, cancellationToken);
+            
+            if (!includePrerelease)
+            {
+                versions = versions.Where(v => !v.IsPrerelease);
+            }
+            
+            return versions.FirstOrDefault();
+        }
+
         public async Task<List<NuGetVersion>> GetVersionsAroundAsync(string packageId, string currentVersion, int countAbove = 100, int countBelow = 5, CancellationToken cancellationToken = default)
         {
             var allVersions = (await GetPackageVersionsAsync(packageId, cancellationToken)).ToList();
@@ -59,6 +71,13 @@ namespace NuGetVersionGlyphs.Services
 
             if (!NuGetVersion.TryParse(currentVersion, out var current))
                 return allVersions.Take(countAbove + countBelow + 1).ToList();
+
+            // If current version is not a pre-release, filter out pre-release versions
+            bool includePrerelease = current.IsPrerelease;
+            if (!includePrerelease)
+            {
+                allVersions = allVersions.Where(v => !v.IsPrerelease).ToList();
+            }
 
             var currentIndex = allVersions.FindIndex(v => v == current);
             
