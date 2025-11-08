@@ -9,7 +9,7 @@ A Visual Studio extension (VSIX) that displays inline glyphs in .csproj files sh
   - 🔵 **Blue "N" badge**: A newer version of the package is available
   
 - **Interactive Version Popup**: Click on any glyph to see a popup showing:
-  - Up to 5 versions above the current version
+  - All versions above the current version
   - Up to 5 versions below the current version
   - The current version is highlighted
   
