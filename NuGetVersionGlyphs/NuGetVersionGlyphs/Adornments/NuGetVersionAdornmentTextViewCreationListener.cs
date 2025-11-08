@@ -12,17 +12,20 @@ namespace NuGetVersionGlyphs.Adornments
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("NuGetVersionAdornmentLayer")]
         [Order(After = PredefinedAdornmentLayers.Selection, Before = PredefinedAdornmentLayers.Text)]
-        public AdornmentLayerDefinition editorAdornmentLayer = null;
+#pragma warning disable 649
+        public AdornmentLayerDefinition editorAdornmentLayer;
+#pragma warning restore 649
 
         public void TextViewCreated(IWpfTextView textView)
         {
             // Only activate for .csproj files
-            var document = textView.TextBuffer.Properties.TryGetProperty<Microsoft.VisualStudio.Text.ITextDocument>(
-                typeof(Microsoft.VisualStudio.Text.ITextDocument), out var doc) ? doc : null;
-
-            if (document != null && document.FilePath.EndsWith(".csproj", System.StringComparison.OrdinalIgnoreCase))
+            Microsoft.VisualStudio.Text.ITextDocument document;
+            if (textView.TextBuffer.Properties.TryGetProperty(typeof(Microsoft.VisualStudio.Text.ITextDocument), out document))
             {
-                new NuGetVersionAdornment(textView);
+                if (document != null && document.FilePath.EndsWith(".csproj", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    new NuGetVersionAdornment(textView);
+                }
             }
         }
     }
