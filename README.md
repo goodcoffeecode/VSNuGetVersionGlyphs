@@ -6,14 +6,13 @@ A Visual Studio extension (VSIX) that displays inline glyphs in .csproj files sh
 
 - **Visual Indicators**: Displays glyphs at the end of each `<PackageReference>` line in .csproj files
   - ✅ **Green checkmark**: Package is up-to-date with the latest version
-  - 🔵 **Blue "N" badge**: A newer version of the package is available
-  
+  - 🔵 **Blue "N" badge**: A newer version of the package is available  
 - **Interactive Version Popup**: Click on any glyph to see a popup showing:
   - All versions above the current version
   - Up to 5 versions below the current version
-  - The current version is highlighted
-  
+  - The current version is highlighted  
 - **Quick Version Switching**: Click any version in the popup to instantly update the package to that version
+- **Pre-release awareness**: only show pre-release options if package is currently on a pre-release version
 
 ## Requirements
 
