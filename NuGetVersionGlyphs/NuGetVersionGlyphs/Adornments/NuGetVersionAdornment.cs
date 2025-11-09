@@ -70,7 +70,14 @@ namespace NuGetVersionGlyphs.Adornments
 
                 foreach (var package in packages)
                 {
-                    var latestVersion = await _nugetService.GetLatestVersionAsync(package.PackageId);
+                    // Determine if current version is a pre-release
+                    if (NuGet.Versioning.NuGetVersion.TryParse(package.CurrentVersion, out var currentVersion))
+                    {
+                        package.IsCurrentVersionPrerelease = currentVersion.IsPrerelease;
+                    }
+
+                    // Get the latest version based on pre-release status
+                    var latestVersion = await _nugetService.GetLatestVersionAsync(package.PackageId, package.IsCurrentVersionPrerelease);
                     if (latestVersion != null)
                     {
                         package.LatestVersion = latestVersion.ToString();
@@ -217,7 +224,14 @@ namespace NuGetVersionGlyphs.Adornments
         {
             try
             {
-                var latestVersion = await _nugetService.GetLatestVersionAsync(package.PackageId);
+                // Determine if current version is a pre-release
+                if (NuGet.Versioning.NuGetVersion.TryParse(package.CurrentVersion, out var currentVersion))
+                {
+                    package.IsCurrentVersionPrerelease = currentVersion.IsPrerelease;
+                }
+
+                // Get the latest version based on pre-release status
+                var latestVersion = await _nugetService.GetLatestVersionAsync(package.PackageId, package.IsCurrentVersionPrerelease);
                 if (latestVersion != null)
                 {
                     package.LatestVersion = latestVersion.ToString();
